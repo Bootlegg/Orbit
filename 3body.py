@@ -17,7 +17,7 @@ dt = 300000 #seems about right
 
 
 #iterations
-nt = 1000
+nt = 100
 
 x = np.linspace(-2*AU,2*AU)
 y = np.linspace(-2*AU,2*AU)
@@ -104,6 +104,7 @@ ax.scatter(xv[0,0], yv[0,0],s=30)
 ax.scatter(xs[0,0], ys[0,0],s=100, c='yellow')
 
 
+
 def animate(i): #i increment with 1 each step
 	ax.clear()
 	ax.set_xlim(-2*AU,2*AU)
@@ -114,6 +115,8 @@ def animate(i): #i increment with 1 each step
 	ax.scatter(xe[i,0], ye[i,0],s=30)
 	ax.scatter(xv[i,0], yv[i,0],s=30)
 	ax.scatter(xs[i,0], ys[i,0],s=100,c='yellow')
+	if i == 50:
+		plt.savefig('Orbit.png', bbox_inches='tight')
 	return None
 
 
