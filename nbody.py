@@ -4,33 +4,59 @@ from pylab import *
 import matplotlib.animation as animation
 
 
+class Planet:
+	'Planets and objects including Sun'
+	PlanetCount = 0
+	planets = []
+	m = []
+
+	def __init__(self,mass,x0,y0,u0,v0,radius):
+		#x0,y0,u0,v0 are initial conditions for motion
+		self.mass = mass
+		self.radius = radius
+		self.x0 = x0
+		self.y0 = y0
+		self.u0 = u0
+		self.v0 = v0
+		Planet.PlanetCount += 1
+		Planet.planets.append(self)
+		Planet.m.append(self.mass)
+
+
+
+
+#instance Planet(mass,x,y,u,vradius)
+#x,y,u,v are initial conditions for the motion and position
+Sun = Planet(2*10**30,0,0,0,0,695700*10**3)
+
+Mercury = Planet(3.3*10**23,0,-46001200*10**3,47.362*10**3,0,2440*10**3)
+
+Venus = Planet(4.87*10**24,-108200000*10**3,0,0,-35000,6052*10**3)
+
+Earth = Planet(6*10**24,1.5*10**11,0,0,29800,6371*10**3)
+
+Mars = Planet(6.417*10**23,0,1.3814*1.5*10**11,-24.077*10**3,0,3389*10**3)
+
+Jupiter = Planet(1.898*10**27,0,778500000*10**3,-13.07*10**3,0,69.911*10**3)
+
+print(Planet.PlanetCount)
+for i in range(Planet.PlanetCount):
+	print(Planet.planets[i].mass)
+
+m = np.array(Planet.m)
+
+
+#print(P0.name)
+
+# planets[0] = Sun
+# planets[1] = mercury
+# for i in range(Planet.PlanetCount):
+# 	planets[i] = 
+
 
 #units
 AU = 1.5*10**11
-M = 2*10**30
-me = 6*10**24
-mv = 4.87*10*24
-mm = 3.3*10**23
-mma = 6.417*10**23
-mj = 1.898*10**27
-
-
-Np = 6
-
-m = np.zeros(Np)
-m[0] = M
-m[1] = mm
-m[2] = mv
-m[3] = me
-m[4] = mma
-m[5] = mj
-
-re = 6371*10**3
-rv = 6052*10**3
-rs = 695700*10**3
-rm = 2440*10**3
-rmma = 3389*10**3
-rj = 69.911*10**3
+Np = Planet.PlanetCount
 
 G = 6.67*10**(-11)
 dt = 300000 #seems about right
@@ -38,9 +64,6 @@ dt = 300000 #seems about right
 
 #iterations
 nt = 1000
-
-x = np.linspace(-2*AU,2*AU)
-y = np.linspace(-2*AU,2*AU)
 
 x = np.zeros((1+nt,Np))
 y = np.zeros((1+nt,Np))
@@ -54,25 +77,11 @@ V = np.zeros(1+nt)
 Tavg = np.zeros(1+nt)
 Vavg = np.zeros(1+nt)
 
-#Earth
-x[0,3] = AU
-v[0,3] = 29800
-
-#Venus
-x[0,2] = -108200000*10**3
-v[0,2] = -35000
-
-#mercury
-y[0,1] = -46001200*10**3
-u[0,1] = 47.362*10**3
-
-#mars
-y[0,4] = 1.3814*AU
-u[0,4] = -24.077*10**3
-
-#juiter
-y[0,5] = 778500000*10**3
-u[0,5] = -13.07*10**3
+for i in range(Np):
+	x[0,i] = Planet.planets[i].x0
+	y[0,i] = Planet.planets[i].y0
+	u[0,i] = Planet.planets[i].u0
+	v[0,i] = Planet.planets[i].v0
 
 #Initial kinetic and potential energy
 T[0] = np.array([0.5*m[i]*(u[0,i]**2+v[0,i]**2) for i in range(Np)]).sum()
@@ -151,7 +160,7 @@ ax1.set_title('Virial Theorem')
 ax1.set_xlabel('timestep n')
 ax1.set_ylabel('Energy[J]')
 ax1.legend(['T', '-1/2 V'])
-plt.savefig('Virial.png', bbox_inches='tight')
+fig1.savefig('Virial.png', bbox_inches='tight')
 
 plt.hold(True)
 fig = plt.figure(2)
@@ -177,7 +186,7 @@ def animate(i): #i increment with 1 each step
 		ax.scatter(x[i,j], y[i,j],s=30,c=colors[j])
 	
 	if i == 50:
-		plt.savefig('Orbit.png', bbox_inches='tight')
+		fig.savefig('Orbit.png', bbox_inches='tight')
 	return None
 
 
