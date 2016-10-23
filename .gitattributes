@@ -1,1 +1,1 @@
-*.py linguist-language=Fortran
+*.py linguist-language=Fortran,Python
