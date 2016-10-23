@@ -1,1 +1,2 @@
-*.py linguist-language=Java
+*.py linguist-language=Fortran
+*.png linguist-language=Python
