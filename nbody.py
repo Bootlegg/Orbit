@@ -3,6 +3,8 @@ import numpy as np
 from pylab import *
 import matplotlib.animation as animation
 import add
+import accel
+import velocity
 
 
 
@@ -41,7 +43,9 @@ Mars = Planet(6.417*10**23,0,1.3814*1.5*10**11,-24.077*10**3,0,3389*10**3)
 
 Jupiter = Planet(1.898*10**27,0,778500000*10**3,-13.07*10**3,0,69.911*10**3)
 
-print(Planet.PlanetCount)
+
+print("Number of planets = {}".format(Planet.PlanetCount))
+print("Planet masses")
 for i in range(Planet.PlanetCount):
 	print(Planet.planets[i].mass)
 
@@ -61,8 +65,10 @@ AU = 1.5*10**11
 Np = Planet.PlanetCount
 
 G = 6.67*10**(-11)
-dt = add.num()#300000 #seems about right
-
+dt = add.num(56)[0]#300000 #seems about right
+#print(add.num()[0])
+#print(add.num()[1])
+print("Done with add, now for accel")
 
 #iterations
 nt = 1000
@@ -102,6 +108,15 @@ for i in range(Np):
 #positions step 1
 x[1,:] = x[0,:] + u[0,:]*dt+0.5*ax[0,:]*dt**2 
 y[1,:] = y[0,:] + v[0,:]*dt+0.5*ay[0,:]*dt**2 
+
+
+print("x")
+print(np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[0])
+print(ax[0,:])
+
+print("y")
+print(np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[1])
+print(ay[0,:])
 
 for n in range(1,nt):
 	#the equations
