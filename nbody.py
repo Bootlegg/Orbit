@@ -166,50 +166,50 @@ for n in range(1,nt):
 		#Average of timesteps
 		#x[n+1,i] = x[n,i]+dt*(0.5*u[n+1,i]+0.5*u[n,i])
 		#y[n+1,i] = y[n,i]+dt*(0.5*v[n+1,i]+0.5*v[n,i])
-# fig1 = plt.figure(1)
-# ax1 = fig1.gca()
-# #ax1.plot(T,c='red')
-# #ax1.plot(V,c='blue')
-# ax1.plot(Tavg[1:-2],c='red')
-# ax1.plot(-0.5*Vavg[1:-2],c='blue')
-# ax1.set_title('Virial Theorem')
-# ax1.set_xlabel('timestep n')
-# ax1.set_ylabel('Energy[J]')
-# ax1.legend(['T', '-1/2 V'])
-# fig1.savefig('Virial.png', bbox_inches='tight')
+fig1 = plt.figure(1)
+ax1 = fig1.gca()
+#ax1.plot(T,c='red')
+#ax1.plot(V,c='blue')
+ax1.plot(Tavg[1:-2],c='red')
+ax1.plot(-0.5*Vavg[1:-2],c='blue')
+ax1.set_title('Virial Theorem')
+ax1.set_xlabel('timestep n')
+ax1.set_ylabel('Energy[J]')
+ax1.legend(['T', '-1/2 V'])
+fig1.savefig('Virial.png', bbox_inches='tight')
 
-# plt.hold(True)
-# fig = plt.figure(2)
-# ax = fig.gca()
-# ax.set_xlim(-2*AU,2*AU)
-# ax.set_ylim(-2*AU,2*AU)
-# ax.set_title('Kappa')
-# ax.set_ylabel('y [m]')
-# ax.set_xlabel('x [m]')
+plt.hold(True)
+fig = plt.figure(2)
+ax = fig.gca()
+ax.set_xlim(-2*AU,2*AU)
+ax.set_ylim(-2*AU,2*AU)
+ax.set_title('Kappa')
+ax.set_ylabel('y [m]')
+ax.set_xlabel('x [m]')
 
 
-# def animate(i): #i increment with 1 each step
-# 	ax.clear()
-# 	ax.set_xlim(-6*AU,6*AU)
-# 	ax.set_ylim(-6*AU,6*AU)
-# 	ax.set_title('Kappa')
-# 	ax.set_ylabel('y [m]')
-# 	ax.set_xlabel('x [m]')
+def animate(i): #i increment with 1 each step
+	ax.clear()
+	ax.set_xlim(-6*AU,6*AU)
+	ax.set_ylim(-6*AU,6*AU)
+	ax.set_title('Kappa')
+	ax.set_ylabel('y [m]')
+	ax.set_xlabel('x [m]')
 	
-# 	colors = ['yellow','black','black','blue','red','black']
-# 	for j in range(Np):
-# 		ax.plot(x[0:i,j], y[0:i,j],c=colors[j])
-# 		ax.scatter(x[i,j], y[i,j],s=30,c=colors[j])
+	colors = ['yellow','black','black','blue','red','black']
+	for j in range(Np):
+		ax.plot(x[0:i,j], y[0:i,j],c=colors[j])
+		ax.scatter(x[i,j], y[i,j],s=30,c=colors[j])
 	
-# 	if i == 50:
-# 		fig.savefig('Orbit.png', bbox_inches='tight')
-# 	return None
+	if i == 50:
+		fig.savefig('Orbit.png', bbox_inches='tight')
+	return None
 
 
-#anim = animation.FuncAnimation(fig, animate, frames=nt, interval=100)
+anim = animation.FuncAnimation(fig, animate, frames=nt, interval=100)
 
 
 
-#plt.show()
+plt.show()
 
 
