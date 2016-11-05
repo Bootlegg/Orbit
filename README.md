@@ -17,16 +17,24 @@ Testing the virial theorem
 ##Path through minimization of Action
 The true path travelled by an object will minimize the Action S, which truely is a phenomenal and jaw-dropping insight. The Lagrangian L is given by the potential energy subtracted from the kinetic energy.
 
-![Lapprox.png](https://github.com/Bootlegg/Orbit/blob/master/Lapprox.png)
+![Lapprox.png](https://github.com/mintDan/Orbit/blob/master/figs/Lapprox.png)
 
 The action is given by the integral
 
-![Sint.png](https://github.com/Bootlegg/Orbit/blob/master/Sint.png)
+![Sint.png](https://github.com/mintDan/Orbit/blob/master/figs/Sint.png)
 
 Which is approximated with discretization to
 
-![Sapprox.png](https://github.com/Bootlegg/Orbit/blob/master/Sapprox.png)
+![Sapprox.png](https://github.com/mintDan/Orbit/blob/master/figs/Sapprox.png)
 
 Varying the Action with respect to the path in x and y direction gives a system of non-linear equations
 
-![Svary.png](https://github.com/Bootlegg/Orbit/blob/master/Svary.png)
+![Svary.png](https://github.com/mintDan/Orbit/blob/master/figs/Svary.png)
+
+These systems of equations are solved by the Jacobi Method, or multidimensional Newton-Raphson method.
+
+The result is seen below for Earth's orbit around the Sun.
+
+![ActioNOrbit.png](https://github.com/Bootlegg/Orbit/blob/master/ActionOrbit.png)
+
+The initial guessed path is a straight line from start to end position. As seen, the curved true path has a lower total action S.
