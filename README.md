@@ -1,8 +1,8 @@
 # Orbit
 Solving orbital problems numerically.  
 
-1. [Basic Stormer-Verlet for n-body problem](https://github.com/mintDan/MonteCarlo#mc-integration)
-2. [Path through minimization of Action](https://github.com/mintDan/MonteCarlo#mc-calculate-pi)
+1. [Basic Stormer-Verlet for n-body problem](https://github.com/mintDan/Orbit#basic-stormer-verlet-for-n-body-problem)
+2. [Path through minimization of Action](https://github.com/mintDan/Orbit#path-through-minimization-of-action)
 
 ## Basic Stormer-Verlet for n-body problem
 Simulation of Earth, Sun, Mars, Mercury, Jupiter and Venus.  
