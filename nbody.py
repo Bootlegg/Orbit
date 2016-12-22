@@ -5,6 +5,7 @@ import matplotlib.animation as animation
 import add
 import accel
 import velocity
+import position
 
 
 
@@ -25,8 +26,6 @@ class Planet:
 		Planet.PlanetCount += 1
 		Planet.planets.append(self)
 		Planet.m.append(self.mass)
-
-
 
 
 #instance Planet(mass,x,y,u,vradius)
@@ -100,52 +99,35 @@ for i in range(Np):
 
 #Basic stormer-verlet integration, first timestep
 #Accelerations[0]
-for i in range(Np):
-		for j in range(Np):
-			if j != i:
-				ax[0,i] = ax[0,i]+(-G*m[j]/((x[0,i]-x[0,j])**2+(y[0,i]-y[0,j])**2)**(1.5))*(x[0,i]-x[0,j])
-				ay[0,i] = ay[0,i]+(-G*m[j]/((x[0,i]-x[0,j])**2+(y[0,i]-y[0,j])**2)**(1.5))*(y[0,i]-y[0,j])
+ax[0,:] = np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[0]
+ay[0,:] = np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[1]
+
 #positions step 1
 x[1,:] = x[0,:] + u[0,:]*dt+0.5*ax[0,:]*dt**2 
 y[1,:] = y[0,:] + v[0,:]*dt+0.5*ay[0,:]*dt**2 
 
 
-print("x")
-print(np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[0])
-print(ax[0,:])
-
-print("y")
-print(np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[1])
-print(ay[0,:])
-
 for n in range(1,nt):
 	#the equations
 	#dxe/dt = ue
 	#due/dt = Fx/m
-
-
 	#ue[1] = ue[0]+dt*Fx/m
 	#ve[1] = ve[0]+dt*Fy/m
 	
 	#Acceleration
-	for i in range(Np):
-		for j in range(Np):
-			if j != i: #Here, either do n or n+1
-				ax[n,i] = ax[n,i]+(-G*m[j]/((x[n,i]-x[n,j])**2+(y[n,i]-y[n,j])**2)**(1.5))*(x[n,i]-x[n,j])
-				ay[n,i] = ay[n,i]+(-G*m[j]/((x[n,i]-x[n,j])**2+(y[n,i]-y[n,j])**2)**(1.5))*(y[n,i]-y[n,j])
-				
+	ax[n,:] = np.array(accel.accel(G,Np,m,x[n,:],y[n,:]))[0]
+	ay[n,:] = np.array(accel.accel(G,Np,m,x[n,:],y[n,:]))[1]
+		
 				
 	#update velocity
 	#velocity either n or n+1, n+1 works with Euler Forward
-	u[n,:] = u[n-1,:] + dt*ax[n,:]
-	v[n,:] = v[n-1,:] + dt*ay[n,:]	
-	#update positions
-	#x[n+1,:] = x[n,:]+dt*u[n+1,:]
-	#y[n+1,:] = y[n,:]+dt*v[n+1,:]
+
+	u[n,:] = np.array(velocity.velocity(dt,Np,ax[n,:],ay[n,:],u[n-1,:],v[n-1,:]))[0]
+	v[n,:] = np.array(velocity.velocity(dt,Np,ax[n,:],ay[n,:],u[n-1,:],v[n-1,:]))[1]
 
 	#update positions verlet
-	x[n+1,:] = 2*x[n,:]-x[n-1,:]+ax[n,:]*dt**2
-	y[n+1,:] = 2*y[n,:]-y[n-1,:]+ay[n,:]*dt**2
+	x[n+1,:] = np.array(position.position(dt,Np,ax[n,:],ay[n,:],x[n,:],y[n,:],x[n-1,:],y[n-1,:]))[0]
+	y[n+1,:] = np.array(position.position(dt,Np,ax[n,:],ay[n,:],x[n,:],y[n,:],x[n-1,:],y[n-1,:]))[1]
 	
 	#Kinetic energy either do n+1 or n...
 	T[n] = np.array([0.5*m[i]*(u[n,i]**2+v[n,i]**2) for i in range(Np)]).sum()
@@ -162,10 +144,6 @@ for n in range(1,nt):
 	Vavg[n] = np.array(V[:n]).sum()*dt/((n)*dt)
 
 
-	##Different schemes
-		#Average of timesteps
-		#x[n+1,i] = x[n,i]+dt*(0.5*u[n+1,i]+0.5*u[n,i])
-		#y[n+1,i] = y[n,i]+dt*(0.5*v[n+1,i]+0.5*v[n,i])
 fig1 = plt.figure(1)
 ax1 = fig1.gca()
 #ax1.plot(T,c='red')
@@ -207,8 +185,6 @@ def animate(i): #i increment with 1 each step
 
 
 anim = animation.FuncAnimation(fig, animate, frames=nt, interval=100)
-
-
 
 plt.show()
 

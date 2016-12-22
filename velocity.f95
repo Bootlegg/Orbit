@@ -11,18 +11,21 @@ REAL*8, DIMENSION(6) :: ax
 REAL*8, DIMENSION(6) :: ay
 
 
-ax = 0
-ay = 0
+!ax = 0
+!ay = 0
 
 u2(:) = u1(:) + dt*ax(:)
-v2(:) = v1(:) + dt*ay(:)	
+v2(:) = v1(:) + dt*ay(:)
 
+! Into this module
 !f2py intent(in) u1
 !f2py intent(in) v1
 !f2py intent(in) ax
 !f2py intent(in) ay
 !f2py intent(in) dt
 !f2py intent(in) Np
+
+! Out of this module
 !f2py intent(out) u2
 !f2py intent(out) v2
 
