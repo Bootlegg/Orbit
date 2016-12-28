@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pylab import *
 import matplotlib.animation as animation
-import add
 import accel
 import velocity
 import position
+import tv
 
 
 
@@ -30,13 +30,13 @@ class Planet:
 
 #instance Planet(mass,x,y,u,vradius)
 #x,y,u,v are initial conditions for the motion and position
-Sun = Planet(2*10**30,0,0,0,0,695700*10**3)
+Sun = Planet(2.0*10**30,0,0,0,0,695700*10**3)
 
 Mercury = Planet(3.3*10**23,0,-46001200*10**3,47.362*10**3,0,2440*10**3)
 
 Venus = Planet(4.87*10**24,-108200000*10**3,0,0,-35000,6052*10**3)
 
-Earth = Planet(6*10**24,1.5*10**11,0,0,29800,6371*10**3)
+Earth = Planet(6.0*10**24,1.5*10**11,0,0,29800,6371*10**3)
 
 Mars = Planet(6.417*10**23,0,1.3814*1.5*10**11,-24.077*10**3,0,3389*10**3)
 
@@ -64,10 +64,7 @@ AU = 1.5*10**11
 Np = Planet.PlanetCount
 
 G = 6.67*10**(-11)
-dt = add.num(56)[0]#300000 #seems about right
-#print(add.num()[0])
-#print(add.num()[1])
-print("Done with add, now for accel")
+dt = 300000
 
 #iterations
 nt = 1000
@@ -91,16 +88,18 @@ for i in range(Np):
 	v[0,i] = Planet.planets[i].v0
 
 #Initial kinetic and potential energy
-T[0] = np.array([0.5*m[i]*(u[0,i]**2+v[0,i]**2) for i in range(Np)]).sum()
+#T[0] = np.array([0.5*m[i]*(u[0,i]**2+v[0,i]**2) for i in range(Np)]).sum()
 
-for i in range(Np):
-	for j in range(i+1,Np):
-		V[0] = V[0] + (-G*m[i]*m[j]/np.sqrt((x[0,i]-x[0,j])**2+(y[0,i]-y[0,j])**2))
+#for i in range(Np):
+#	for j in range(i+1,Np):
+#		V[0] = V[0] + (-G*m[i]*m[j]/np.sqrt((x[0,i]-x[0,j])**2+(y[0,i]-y[0,j])**2))
+
+T[0],V[0] = np.array(tv.tv(Np,G,m,u[0,:],v[0,:],x[0,:],y[0,:]))
+
 
 #Basic stormer-verlet integration, first timestep
 #Accelerations[0]
-ax[0,:] = np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[0]
-ay[0,:] = np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))[1]
+ax[0,:],ay[0,:] = np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))
 
 #positions step 1
 x[1,:] = x[0,:] + u[0,:]*dt+0.5*ax[0,:]*dt**2 
@@ -114,29 +113,19 @@ for n in range(1,nt):
 	#ue[1] = ue[0]+dt*Fx/m
 	#ve[1] = ve[0]+dt*Fy/m
 	
-	#Acceleration
-	ax[n,:] = np.array(accel.accel(G,Np,m,x[n,:],y[n,:]))[0]
-	ay[n,:] = np.array(accel.accel(G,Np,m,x[n,:],y[n,:]))[1]
-		
-				
+	#Acceleration FORTRAN
+	ax[n,:], ay[n,:] = np.array(accel.accel(G,Np,m,x[n,:],y[n,:]))			
+	
 	#update velocity
 	#velocity either n or n+1, n+1 works with Euler Forward
-
-	u[n,:] = np.array(velocity.velocity(dt,Np,ax[n,:],ay[n,:],u[n-1,:],v[n-1,:]))[0]
-	v[n,:] = np.array(velocity.velocity(dt,Np,ax[n,:],ay[n,:],u[n-1,:],v[n-1,:]))[1]
-
-	#update positions verlet
-	x[n+1,:] = np.array(position.position(dt,Np,ax[n,:],ay[n,:],x[n,:],y[n,:],x[n-1,:],y[n-1,:]))[0]
-	y[n+1,:] = np.array(position.position(dt,Np,ax[n,:],ay[n,:],x[n,:],y[n,:],x[n-1,:],y[n-1,:]))[1]
+	u[n,:], v[n,:] = np.array(velocity.velocity(dt,Np,ax[n,:],ay[n,:],u[n-1,:],v[n-1,:]))
 	
-	#Kinetic energy either do n+1 or n...
-	T[n] = np.array([0.5*m[i]*(u[n,i]**2+v[n,i]**2) for i in range(Np)]).sum()
-	#Potential energy
-	for i in range(Np):
-		for j in range(i+1,Np):
-			V[n] = V[n] + (-G*m[i]*m[j]/np.sqrt((x[n,i]-x[n,j])**2\
-							+ (y[n,i]-y[n,j])**2))
+	#update positions verlet
+	x[n+1,:], y[n+1,:] = np.array(position.position(dt,Np,ax[n,:],ay[n,:],x[n,:],y[n,:],x[n-1,:],y[n-1,:]))
 
+	#Kinetic and potential energy
+	T[n],V[n] = np.array(tv.tv(Np,G,m,u[n,:],v[n,:],x[n,:],y[n,:]))
+	
 	#time average kinetic energy
 	Tavg[n] = np.array(T[:n]).sum()*dt/((n)*dt)
 

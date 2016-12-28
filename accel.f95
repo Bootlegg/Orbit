@@ -22,10 +22,14 @@ DO i=1,6
 	END DO
 END DO
 
+! Output from this module
 !f2py intent(out) ax
 !f2py intent(out) ay
+
+! Input to this module
 !f2py intent(in) x
 !f2py intent(in) y
 !f2py intent(in) m
+
 
 END SUBROUTINE accel
