@@ -51,14 +51,6 @@ for i in range(Planet.PlanetCount):
 m = np.array(Planet.m)
 
 
-#print(P0.name)
-
-# planets[0] = Sun
-# planets[1] = mercury
-# for i in range(Planet.PlanetCount):
-# 	planets[i] = 
-
-
 #units
 AU = 1.5*10**11
 Np = Planet.PlanetCount
@@ -87,15 +79,7 @@ for i in range(Np):
 	u[0,i] = Planet.planets[i].u0
 	v[0,i] = Planet.planets[i].v0
 
-#Initial kinetic and potential energy
-#T[0] = np.array([0.5*m[i]*(u[0,i]**2+v[0,i]**2) for i in range(Np)]).sum()
-
-#for i in range(Np):
-#	for j in range(i+1,Np):
-#		V[0] = V[0] + (-G*m[i]*m[j]/np.sqrt((x[0,i]-x[0,j])**2+(y[0,i]-y[0,j])**2))
-
 T[0],V[0] = np.array(tv.tv(Np,G,m,u[0,:],v[0,:],x[0,:],y[0,:]))
-
 
 #Basic stormer-verlet integration, first timestep
 #Accelerations[0]
