@@ -2,10 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pylab import *
 import matplotlib.animation as animation
-import accel
-import velocity
-import position
-import tv
+import mainr
 
 
 
@@ -51,12 +48,13 @@ for i in range(Planet.PlanetCount):
 m = np.array(Planet.m)
 
 
+
 #units
 AU = 1.5*10**11
 Np = Planet.PlanetCount
 
 G = 6.67*10**(-11)
-dt = 300000
+dt = 300000 #300000 #seems about right
 
 #iterations
 nt = 1000
@@ -67,11 +65,12 @@ ax = np.zeros((1+nt,Np))
 ay = np.zeros((1+nt,Np))
 u = np.zeros((1+nt,Np))
 v = np.zeros((1+nt,Np))
-T = np.zeros(1+nt)
-V = np.zeros(1+nt)
 
-Tavg = np.zeros(1+nt)
-Vavg = np.zeros(1+nt)
+Tkin = np.zeros((1+nt,Np))
+Vpot = np.zeros((1+nt,Np))
+Tavg = np.zeros((1+nt,Np))
+Vavg = np.zeros((1+nt,Np))
+
 
 for i in range(Np):
 	x[0,i] = Planet.planets[i].x0
@@ -79,55 +78,21 @@ for i in range(Np):
 	u[0,i] = Planet.planets[i].u0
 	v[0,i] = Planet.planets[i].v0
 
-T[0],V[0] = np.array(tv.tv(Np,G,m,u[0,:],v[0,:],x[0,:],y[0,:]))
 
-#Basic stormer-verlet integration, first timestep
-#Accelerations[0]
-ax[0,:],ay[0,:] = np.array(accel.accel(G,Np,m,x[0,:],y[0,:]))
-
-#positions step 1
-x[1,:] = x[0,:] + u[0,:]*dt+0.5*ax[0,:]*dt**2 
-y[1,:] = y[0,:] + v[0,:]*dt+0.5*ay[0,:]*dt**2 
-
-
-for n in range(1,nt):
-	#the equations
-	#dxe/dt = ue
-	#due/dt = Fx/m
-	#ue[1] = ue[0]+dt*Fx/m
-	#ve[1] = ve[0]+dt*Fy/m
-	
-	#Acceleration FORTRAN
-	ax[n,:], ay[n,:] = np.array(accel.accel(G,Np,m,x[n,:],y[n,:]))			
-	
-	#update velocity
-	#velocity either n or n+1, n+1 works with Euler Forward
-	u[n,:], v[n,:] = np.array(velocity.velocity(dt,Np,ax[n,:],ay[n,:],u[n-1,:],v[n-1,:]))
-	
-	#update positions verlet
-	x[n+1,:], y[n+1,:] = np.array(position.position(dt,Np,ax[n,:],ay[n,:],x[n,:],y[n,:],x[n-1,:],y[n-1,:]))
-
-	#Kinetic and potential energy
-	T[n],V[n] = np.array(tv.tv(Np,G,m,u[n,:],v[n,:],x[n,:],y[n,:]))
-	
-	#time average kinetic energy
-	Tavg[n] = np.array(T[:n]).sum()*dt/((n)*dt)
-
-	#time average potential energy
-	Vavg[n] = np.array(V[:n]).sum()*dt/((n)*dt)
-
+#Call Fortran program
+ax,ay,u,v,x,y,Tavg,Vavg,Tkin,Vpot = np.array(mainr.mainr(ax,ay,u,v,x,y,m,Tavg,Vavg,Tkin,Vpot,dt,G,nt,Np))
 
 fig1 = plt.figure(1)
 ax1 = fig1.gca()
 #ax1.plot(T,c='red')
 #ax1.plot(V,c='blue')
-ax1.plot(Tavg[1:-2],c='red')
-ax1.plot(-0.5*Vavg[1:-2],c='blue')
+ax1.plot(Tavg[1:-2,0],c='red')
+ax1.plot(-0.5*Vavg[1:-2,0],c='blue')
 ax1.set_title('Virial Theorem')
 ax1.set_xlabel('timestep n')
 ax1.set_ylabel('Energy[J]')
 ax1.legend(['T', '-1/2 V'])
-fig1.savefig('Virial.png', bbox_inches='tight')
+fig1.savefig('figs/Virial.png', bbox_inches='tight')
 
 plt.hold(True)
 fig = plt.figure(2)
@@ -153,7 +118,7 @@ def animate(i): #i increment with 1 each step
 		ax.scatter(x[i,j], y[i,j],s=30,c=colors[j])
 	
 	if i == 50:
-		fig.savefig('Orbit.png', bbox_inches='tight')
+		fig.savefig('figs/Orbit.png', bbox_inches='tight')
 	return None
 
 

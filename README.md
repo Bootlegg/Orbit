@@ -10,10 +10,10 @@ Currently the time step is loaded from a fortran module. The fortran module is c
 In the future the numerical steps will be made in fortran to compare speed against NumPy.  
 Based on real parameters(mass, orbit speed) from Wikipedia.  
 ###Simulation
-![Orbit.png](https://github.com/Bootlegg/Orbit/blob/master/Orbit.png)
+![Orbit.png](https://github.com/mintDan/Orbit/blob/master/figs/Orbit.png)
 ###Virial Theorem
 Testing the virial theorem
-![Virial.png](https://github.com/Bootlegg/Orbit/blob/master/Virial.png)
+![Virial.png](https://github.com/mintDan/Orbit/blob/master/figs/Virial.png)
 
 ##Path through minimization of Action
 The true path travelled by an object will minimize the Action S, which truely is a phenomenal and jaw-dropping insight. The Lagrangian L is given by the potential energy subtracted from the kinetic energy.
