@@ -2,7 +2,8 @@
 Solving orbital problems numerically.  
 
 1. [Basic Stormer-Verlet for n-body problem](https://github.com/mintDan/Orbit#basic-stormer-verlet-for-n-body-problem)
-2. [Path through minimization of Action](https://github.com/mintDan/Orbit#path-through-minimization-of-action)
+2. [Barnes-Hut algorithm](https://github.com/mintDan/Orbit#barnes-hut-algorithm
+3. [Path through minimization of Action](https://github.com/mintDan/Orbit#path-through-minimization-of-action)
 
 ## Basic Stormer-Verlet for n-body problem
 Simulation of Earth, Sun, Mars, Mercury, Jupiter and Venus.  
@@ -14,6 +15,12 @@ Based on real parameters(mass, orbit speed) from Wikipedia.
 ###Virial Theorem
 Testing the virial theorem
 ![Virial.png](https://github.com/mintDan/Orbit/blob/master/figs/Virial.png)
+
+## Basic Stormer-Verlet for n-body problem
+Uses the Barnes-Hut algo made with dictionaries. Uses a Quadtree for O(NlogN) efficiency, instead of direct summation. Working on the multipole expansion of gravity.  
+If a planet/particle is sufficiently far away, the force from distant masses can be approximated by their center of mass.
+
+![BH.png](https://github.com/mintDan/Orbit/blob/master/figs/BH.png)
 
 ##Path through minimization of Action
 The true path travelled by an object will minimize the Action S, which truely is a phenomenal and jaw-dropping insight. The Lagrangian L is given by the potential energy subtracted from the kinetic energy.
