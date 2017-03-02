@@ -429,9 +429,9 @@ def CenterOfMass(rectdict):
 
 
 			rectdict["CM"] = [CMx,CMy, M]
-			print(rectdict["CM"])
+			#print(rectdict["CM"])
 
-			#plt.scatter(CMx,CMy,s=M,c="red")
+			plt.scatter(CMx,CMy,c="red")
 
 
 	for area in ["A1","A2","A3","A4"]:
@@ -480,9 +480,12 @@ def CalcForce(rectdict,level):
 				#Vi laver en carry for testing
 				#rectdict["Partics"][partic]["Carry"] = 0
 
-				FindParticleForForce(Dict,rectdict["Partics"][partic])
+				#Use Particles
+				#FindParticleForForce(Dict,rectdict["Partics"][partic])
 				
-
+				#Use Multipole Expansion
+				FindAreaForForce(Dict, rectdict["Partics"][partic])
+				
 				#Making velocity...not a good way, if there's many timesteps,
 				#then EACH time we will extend the particle list..
 				#particle.extend([0,0])
@@ -547,6 +550,28 @@ def FindAreaForForce(rectdict, particle):
 	if "CM" in rectdict:
 		d = np.sqrt((particle["x"]-rectdict["CM"][0])**2+(particle["y"]-rectdict["CM"][1])**2)
 		r = rectdict["r"]
+
+		r=2
+		d=1
+		if r/d < 0.5:
+			particle["ax"] = particle["ax"] + (-1)*G*rectdict["CM"][2]*((particle["x"]-rectdict["CM"][0])
+												/((particle["x"]-rectdict["CM"][0])**2
+												+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
+
+			particle["ay"] = particle["ay"] + (-1)*G*rectdict["CM"][2]*((particle["y"]-rectdict["CM"][1])
+												/((particle["x"]-rectdict["CM"][0])**2
+												+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
+		else:
+			for partic2 in rectdict["Partics"]:
+				if particle != rectdict["Partics"][partic2]:
+					particle["ax"] = particle["ax"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["x"]-rectdict["Partics"][partic2]["x"])
+																	/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
+																	+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
+
+					particle["ay"] = particle["ay"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["y"]-rectdict["Partics"][partic2]["y"])
+																	/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
+																	+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
+
 	for area in ["A1","A2","A3","A4"]:
 		if area in rectdict:
 			FindAreaForForce(rectdict[area],particle)
@@ -755,6 +780,7 @@ print(points.keys())
 
 # #HERE DO STEP 1
 level = 0
+CenterOfMass(Dict)
 CalcForceFirst(Dict,level)
 UpdateOld(Dict)
 
@@ -781,7 +807,7 @@ for pointkey in points:
 	level = 0
 	PointCoords(level,points[pointkey],pointkey,[Lx0,Lx,Ly0,Ly],Dict)
 
-
+CenterOfMass(Dict)
 #print(Dict)
 
 #print("Calculate Forces")
