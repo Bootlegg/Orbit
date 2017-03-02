@@ -16,7 +16,7 @@ Based on real parameters(mass, orbit speed) from Wikipedia.
 Testing the virial theorem
 ![Virial.png](https://github.com/mintDan/Orbit/blob/master/figs/Virial.png)
 
-## Basic Stormer-Verlet for n-body problem
+## Barnes-Hut algorithm
 Uses the Barnes-Hut algo made with dictionaries. Uses a Quadtree for O(NlogN) efficiency, instead of direct summation. Working on the multipole expansion of gravity.  
 If a planet/particle is sufficiently far away, the force from distant masses can be approximated by their center of mass.
 
