@@ -807,7 +807,7 @@ for pointkey in points:
 	level = 0
 	PointCoords(level,points[pointkey],pointkey,[Lx0,Lx,Ly0,Ly],Dict)
 
-CenterOfMass(Dict)
+#CenterOfMass(Dict)
 #print(Dict)
 
 #print("Calculate Forces")
@@ -888,10 +888,13 @@ def animate(i): #i increment with 1 each step
 
 	#PrintDict()
 	
+	
+	CenterOfMass(Dict)
+
 	level = 0
 	CalcForce(Dict,level)
 
-	CenterOfMass(Dict)
+	
 	
 	level = 0
 	ListPlot = []
