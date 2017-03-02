@@ -2,7 +2,7 @@
 Solving orbital problems numerically.  
 
 1. [Basic Stormer-Verlet for n-body problem](https://github.com/mintDan/Orbit#basic-stormer-verlet-for-n-body-problem)
-2. [Barnes-Hut algorithm](https://github.com/mintDan/Orbit#barnes-hut-algorithm
+2. [Barnes-Hut algorithm](https://github.com/mintDan/Orbit#barnes-hut-algorithm)
 3. [Path through minimization of Action](https://github.com/mintDan/Orbit#path-through-minimization-of-action)
 
 ## Basic Stormer-Verlet for n-body problem
