@@ -33,7 +33,7 @@ def PlotDict(level,rectdict):
 				#to a list, if it isn't already in
 				if rectdict[area]["A"][i] not in ListPlot:
 					ListPlot.append(rectdict[area]["A"][i])
-					plt.plot(*rectdict[area]["A"][i], color = "black")
+					plt.plot(*rectdict[area]["A"][i], color = "black", alpha = 1.0/3)
 				#else:
 					#pass
 			
@@ -431,7 +431,7 @@ def CenterOfMass(rectdict):
 			rectdict["CM"] = [CMx,CMy, M]
 			#print(rectdict["CM"])
 
-			plt.scatter(CMx,CMy,c="red")
+			#plt.scatter(CMx,CMy,c="red")
 
 
 	for area in ["A1","A2","A3","A4"]:
@@ -698,7 +698,8 @@ points["P0"] = {"x": 0,
 					"xold":0,
 					"yold":0,
 					"xnew":0,
-					"ynew":0}
+					"ynew":0,
+					"C":"yellow"}
 #Mercury
 points["P1"] = {"x": 0, 
 					"y": -46001200*10**3, 
@@ -710,7 +711,8 @@ points["P1"] = {"x": 0,
 					"xold":0,
 					"yold":-46001200*10**3,
 					"xnew":0,
-					"ynew":0}
+					"ynew":0,
+					"C":"black"}
 
 #Venus
 points["P2"] = {"x": -108200000*10**3, 
@@ -723,7 +725,8 @@ points["P2"] = {"x": -108200000*10**3,
 					"xold":-108200000*10**3,
 					"yold":0,
 					"xnew":0,
-					"ynew":0}
+					"ynew":0,
+					"C":"black"}
 #earth
 points["P3"] = {"x": 1.5*10**11, 
 					"y": 0, 
@@ -735,7 +738,8 @@ points["P3"] = {"x": 1.5*10**11,
 					"xold":1.5*10**11,
 					"yold":0,
 					"xnew":0,
-					"ynew":0}
+					"ynew":0,
+					"C":"blue"}
 
 #Mars
 points["P4"] = {"x": 0, 
@@ -748,7 +752,8 @@ points["P4"] = {"x": 0,
 					"xold":0,
 					"yold":-46001200*10**3,
 					"xnew":0,
-					"ynew":0}				
+					"ynew":0,
+					"C":"red"}				
 #Jupiter
 points["P5"] = {"x": 0, 
 					"y": 778500000*10**3, 
@@ -760,7 +765,8 @@ points["P5"] = {"x": 0,
 					"xold":0,
 					"yold":778500000*10**3,
 					"xnew":0,
-					"ynew":0}
+					"ynew":0,
+					"C":"black"}
 
 
 
@@ -860,7 +866,7 @@ fig = plt.figure(2)
 ax = fig.gca()
 ax.set_xlim(-6*AU,6*AU)
 ax.set_ylim(-6*AU,6*AU)
-ax.set_title('Kappa')
+ax.set_title('Barnes-Hut algorithm, Solar System')
 ax.set_ylabel('y [m]')
 ax.set_xlabel('x [m]')
 
@@ -871,7 +877,7 @@ def animate(i): #i increment with 1 each step
 	ax.clear()
 	ax.set_xlim(-6*AU,6*AU)
 	ax.set_ylim(-6*AU,6*AU)
-	ax.set_title('Kappa')
+	ax.set_title('Barnes-Hut algorithm, Solar System')
 	ax.set_ylabel('y [m]')
 	ax.set_xlabel('x [m]')
 	
@@ -901,7 +907,8 @@ def animate(i): #i increment with 1 each step
 	PlotDict(level, Dict)
 	
 	for pointkey in points:
-		plt.scatter(points[pointkey]["x"],points[pointkey]["y"], color = "blue",s=20)
+		plt.scatter(points[pointkey]["x"],points[pointkey]["y"], 
+			color = points[pointkey]["C"],s=25)
 
 
 
