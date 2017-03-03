@@ -175,6 +175,8 @@ def NewSplit(level,lims,rectdict):
 			rectdict["A4"]["A"] = area4
 
 
+			#Ahh... lige nu tilføjer jeg kun "r" til rectdict, HVIS children >=2...
+			#Jeg skal faktisk lave en "r" til ALLE nodes, hvis jeg forstår rigtigt
 			rectdict["A1"]["r"] = (Lx-Lx0)/2
 			rectdict["A2"]["r"] = (Lx-Lx0)/2
 			rectdict["A3"]["r"] = (Lx-Lx0)/2
@@ -226,6 +228,8 @@ def PointCoords(level,point,pointkey,lims,rectdict):
 	#JEg skal lave particles om til dictionaries på en måde,
 	#Så det er mere overskueligt med timestepping etc...
 
+	if "r" not in rectdict:
+		rectdict["r"] = lims[1]-lims[0]
 
 
 
@@ -406,6 +410,11 @@ def CenterOfMass(rectdict):
 	#Også hvis r/d < 0.5, så kan jeg bruge CM, right?
 
 
+	#Jeg skal på en måde lave en overordnet CM for areas?
+	#Hmm... man skal åbenbart calculate CM for EACH parent node? goddam :O
+
+
+
 	if "Partics" in rectdict:
 		children = len(rectdict["Partics"])
 
@@ -429,14 +438,76 @@ def CenterOfMass(rectdict):
 
 
 			rectdict["CM"] = [CMx,CMy, M]
+
+			if "CMPARENT" not in rectdict:
+				rectdict["CMPARENT"] = [0,0,0]
 			#print(rectdict["CM"])
 
 			#plt.scatter(CMx,CMy,c="red")
+	else:
+		#Her har jeg faktisk en mulighed for at calculate CM til parents
+		#Hvis der ikke er nogen "Partics" key, så er det fordi vi er i en parent node
+		#Så lad os traverse fra current parent node, og through resten af dict...
+		#Denne her vil IKKE blive called i areas hvor "Partics" findes,
+		#Dvs, som minimum i deepest levels hvor particles er, men måske også by bug i Parent nodes
 
+		if "CMPARENT" not in rectdict:
+			rectdict["CMPARENT"] = [0,0,0]
+
+		for area in ["A1","A2","A3","A4"]:
+			if area in rectdict:
+				ParentCM(rectdict[area],rectdict["CMPARENT"])
+		#print(rectdict["CMPARENT"])
+		#CMx and CMy, når vi er done
+		if "CMPARENT" in rectdict:
+			#Hvis CMPARENT er i rectdict, bør der IKKE være division by 0, EVER!
+			#AHh vent... Hvis vi når ind i en empty deepest level,
+			#Den har jo ingen "Partics", men den har heller ikke nogen dybere levels, 
+			#hvori der kan være particles... så dvs, de vil jo have [0,0,0]
+			#Yea,
+			#Så vi laver if statement, som nok også bør laves flere steder så?
+			if rectdict["CMPARENT"][0] != 0:
+				rectdict["CMPARENT"][1] = rectdict["CMPARENT"][1]/rectdict["CMPARENT"][0]
+				rectdict["CMPARENT"][2] = rectdict["CMPARENT"][2]/rectdict["CMPARENT"][0]
+
+		#pass
 
 	for area in ["A1","A2","A3","A4"]:
 		if area in rectdict:
 			CenterOfMass(rectdict[area])
+
+def ParentCM(rectdict,CM):
+	if "Partics" in rectdict:
+		children = len(rectdict["Partics"])
+
+		#Remove CM, no particles
+
+		#Lige nu der laver jeg faktisk CM of mass, OF center of mass....
+		#Det er ikke sikkert det er algebraically equilevant...
+		
+		if children > 0:
+			M = 0
+			CMx = 0
+			CMy = 0
+			for partic in rectdict["Partics"]:
+				
+				M += rectdict["Partics"][partic]["m"]
+				
+				CMx += rectdict["Partics"][partic]["x"]*rectdict["Partics"][partic]["m"]
+				CMy += rectdict["Partics"][partic]["y"]*rectdict["Partics"][partic]["m"]
+
+			#CMx = CMx/M
+			#CMy = CMy/M
+
+
+			CM[0] = CM[0] + M
+			CM[1] = CM[1] + CMx
+			CM[2] = CM[2] + CMy
+
+	for area in ["A1","A2","A3","A4"]:
+		if area in rectdict:
+			ParentCM(rectdict[area],CM)
+
 
 def CalcForce(rectdict,level):
 	#find a particle, by traversing THE ENTIRE dictionary,
@@ -466,19 +537,11 @@ def CalcForce(rectdict,level):
 			
 
 			for partic in rectdict["Partics"]:
-
 				#traverse the whole dict again
 				#Skal jeg lave Fx,Fy global måske? Eller carry dem ind i function som argument?
 
 				#Eller måske skal man bruge noget return, og set Fx,Fy = FindParti
 				#Så kan være return hjælper
-
-				#Making accel elements, not a good way, if there's many timesteps,
-				#then EACH time we will extend the particle list..
-				#particle.extend([0,0])
-
-				#Vi laver en carry for testing
-				#rectdict["Partics"][partic]["Carry"] = 0
 
 				#Use Particles
 				#FindParticleForForce(Dict,rectdict["Partics"][partic])
@@ -486,10 +549,6 @@ def CalcForce(rectdict,level):
 				#Use Multipole Expansion
 				FindAreaForForce(Dict, rectdict["Partics"][partic])
 				
-				#Making velocity...not a good way, if there's many timesteps,
-				#then EACH time we will extend the particle list..
-				#particle.extend([0,0])
-
 
 				#Problem here is that I'm updating positions, but they will then be altered for the
 				#next particle... so I need xold,x,xnew maybe, so that other particles still can use xold etc
@@ -499,13 +558,7 @@ def CalcForce(rectdict,level):
 				#Timestep position
 				UpdatePosition(rectdict["Partics"][partic])
 
-				#print("Printing Carry")
-				#print("level {}, carry {}".format(level,rectdict["Partics"][partic]["Carry"]))
-
-
-
-			#print("Done with force")
-			#print(rectdict["Partics"][partic])
+				
 	#Når den har været igennem alle particles her, så går vi et level deeper
 	for area in ["A1","A2","A3","A4"]:
 		if area in rectdict:
@@ -514,7 +567,70 @@ def CalcForce(rectdict,level):
 			CalcForce(rectdict[area],level)
 			#level -= 1
 
+def FindAreaForForce(rectdict, particle):
+	if "CMPARENT" in rectdict:
+		if "r" in rectdict:
+			if rectdict["CMPARENT"][0] != 0:
+				#Vi skal lige tjekke om M = 0, fordi så er vi i deepest level
 
+				d = np.sqrt((particle["x"]-rectdict["CMPARENT"][0])**2+(particle["y"]-rectdict["CMPARENT"][1])**2)
+				r = rectdict["r"]
+				r = 10
+				d = 2
+				if r/d < 0.5:
+					particle["ax"] = particle["ax"] + (-1)*G*rectdict["CMPARENT"][2]*((particle["x"]-rectdict["CMPARENT"][0])
+														/((particle["x"]-rectdict["CMPARENT"][0])**2
+														+(particle["y"]-rectdict["CMPARENT"][1])**2)**(1.5))
+
+					particle["ay"] = particle["ay"] + (-1)*G*rectdict["CMPARENT"][2]*((particle["y"]-rectdict["CMPARENT"][1])
+														/((particle["x"]-rectdict["CMPARENT"][0])**2
+														+(particle["y"]-rectdict["CMPARENT"][1])**2)**(1.5))
+				else:
+				#Her har jeg konstateret, at der CMPARENT er for tæt på, så jeg er
+				#nødt til at tage alle under partikler/eller i hvert fald se om der er nogle
+				#CMPARENTS below som ligger langt nok væk...
+				#Men man kan jo som udgangspunkt prøve bare at tage alle underpartikler, hvis r/d
+				#er for tæt på...
+					FindParticleForForce(rectdict,particle)
+					#pass
+			#else:
+				#FindParticleForForce(rectdict,particle)
+		#else:
+			#FindParticleForForce(rectdict,particle)
+
+	#else:
+		#Vi har altså, af en eller anden grund, ikke "CMPARENT" i rectdict
+		#FindParticleForForce(rectdict,particle)
+
+	#else:
+	# if "CMOUTCOMENNETED" in rectdict:
+	# 	d = np.sqrt((particle["x"]-rectdict["CM"][0])**2+(particle["y"]-rectdict["CM"][1])**2)
+	# 	r = rectdict["r"]
+
+	# 	r=2
+	# 	d=1
+	# 	if r/d < 0.5:
+	# 		particle["ax"] = particle["ax"] + (-1)*G*rectdict["CM"][2]*((particle["x"]-rectdict["CM"][0])
+	# 											/((particle["x"]-rectdict["CM"][0])**2
+	# 											+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
+
+	# 		particle["ay"] = particle["ay"] + (-1)*G*rectdict["CM"][2]*((particle["y"]-rectdict["CM"][1])
+	# 											/((particle["x"]-rectdict["CM"][0])**2
+	# 											+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
+	# 	else:
+	# 		for partic2 in rectdict["Partics"]:
+	# 			if particle != rectdict["Partics"][partic2]:
+	# 				particle["ax"] = particle["ax"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["x"]-rectdict["Partics"][partic2]["x"])
+	# 																/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
+	# 																+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
+
+	# 				particle["ay"] = particle["ay"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["y"]-rectdict["Partics"][partic2]["y"])
+	# 																/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
+	# 																+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
+
+	# for area in ["A1","A2","A3","A4"]:
+	# 	if area in rectdict:
+	# 		FindAreaForForce(rectdict[area],particle)
 
 def FindParticleForForce(rectdict,particle):#,Fx,Fy):
 	#global Fx, Fy
@@ -536,8 +652,7 @@ def FindParticleForForce(rectdict,particle):#,Fx,Fy):
 
 	for area in ["A1","A2","A3","A4"]:
 		if area in rectdict:
-			
-			#particle["Carry"] += 1
+	
 			FindParticleForForce(rectdict[area],particle)#,Fx,Fy)
 	#else:
 		#print(Fx,Fy)
@@ -546,37 +661,9 @@ def FindParticleForForce(rectdict,particle):#,Fx,Fy):
 		#pass
 		#return Fx,Fy
 
-def FindAreaForForce(rectdict, particle):
-	if "CM" in rectdict:
-		d = np.sqrt((particle["x"]-rectdict["CM"][0])**2+(particle["y"]-rectdict["CM"][1])**2)
-		r = rectdict["r"]
-
-		r=2
-		d=1
-		if r/d < 0.5:
-			particle["ax"] = particle["ax"] + (-1)*G*rectdict["CM"][2]*((particle["x"]-rectdict["CM"][0])
-												/((particle["x"]-rectdict["CM"][0])**2
-												+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
-
-			particle["ay"] = particle["ay"] + (-1)*G*rectdict["CM"][2]*((particle["y"]-rectdict["CM"][1])
-												/((particle["x"]-rectdict["CM"][0])**2
-												+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
-		else:
-			for partic2 in rectdict["Partics"]:
-				if particle != rectdict["Partics"][partic2]:
-					particle["ax"] = particle["ax"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["x"]-rectdict["Partics"][partic2]["x"])
-																	/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
-																	+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
-
-					particle["ay"] = particle["ay"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["y"]-rectdict["Partics"][partic2]["y"])
-																	/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
-																	+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
-
-	for area in ["A1","A2","A3","A4"]:
-		if area in rectdict:
-			FindAreaForForce(rectdict[area],particle)
 
 def UpdateVelocity(particle):
+	#Used for first timestep
 	particle["u"] = particle["u"]+dt*particle["ax"]
 	particle["v"] = particle["v"]+dt*particle["ay"]
 
@@ -584,6 +671,9 @@ def UpdatePosition(particle):
 	particle["xnew"] = 2*particle["x"] - particle["xold"] + particle["ax"]*dt**2
 	particle["ynew"] = 2*particle["y"] - particle["yold"] + particle["ay"]*dt**2
 
+def UpdatePositionFirst(particle):
+	particle["xnew"] = particle["x"] + particle["u"]*dt + 0.5*particle["ax"]*dt**2
+	particle["ynew"] = particle["y"] + particle["v"]*dt + 0.5*particle["ay"]*dt**2	
 
 
 def CalcForceFirst(rectdict,level):
@@ -608,14 +698,6 @@ def CalcForceFirst(rectdict,level):
 			print(area)
 			CalcForceFirst(rectdict[area],level)
 			level -= 1
-
-
-
-def UpdatePositionFirst(particle):
-	particle["xnew"] = particle["x"] + particle["u"]*dt + 0.5*particle["ax"]*dt**2
-	particle["ynew"] = particle["y"] + particle["v"]*dt + 0.5*particle["ay"]*dt**2		
-
-
 
 
 def UpdateOld(rectdict):
@@ -663,10 +745,15 @@ def ClearDict(rectdict):#,points):
 			#	points[partic] = rectdict["Partics"][partic]
 			points.update(rectdict["Partics"])
 		
-		rectdict["Partics"].clear()
+		#rectdict["Partics"].clear()
+		rectdict.pop("Partics")
 	
 	if "CM" in rectdict:
 		rectdict.pop("CM")
+	if "CMPARENT" in rectdict:
+		rectdict.pop("CMPARENT")
+	if "r" in rectdict:
+		rectdict.pop("r")
 
 	for area in ["A1","A2","A3","A4"]:
 		if area in rectdict:
@@ -678,6 +765,7 @@ def ClearDict(rectdict):#,points):
 
 
 
+
 G = 6.674*10**(-11)
 AU = 1.5*10**11
 Lx0 = -6*AU
@@ -686,7 +774,7 @@ Lx = 6*AU
 Ly = 6*AU
 dt = 300000
 
-points = {}#"Sun":{},"Mercury":{},"Venus":{},"Earth":{}, "Jupiter":{}}
+points = {}
 #Sun
 points["P0"] = {"x": 0, 
 					"y": 0, 
@@ -776,13 +864,15 @@ for pointkey in points:
 	level = 0
 	PointCoords(level,points[pointkey],pointkey,[Lx0,Lx,Ly0,Ly],Dict)
 
+# print("Calculate Center of Mass of cells/areas")
+#CenterOfMass(Dict)
 
 PrintDict()
 print(Dict)
 print(points.keys())
 
-# print("Calculate Center of Mass of cells/areas")
-# #CenterOfMass(Dict)
+
+
 
 # #HERE DO STEP 1
 level = 0
