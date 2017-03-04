@@ -439,8 +439,8 @@ def CenterOfMass(rectdict):
 
 			rectdict["CM"] = [CMx,CMy, M]
 
-			if "CMPARENT" not in rectdict:
-				rectdict["CMPARENT"] = [0,0,0]
+			#if "CMPARENT" not in rectdict:
+			#	rectdict["CMPARENT"] = [0,0,0]
 			#print(rectdict["CM"])
 
 			#plt.scatter(CMx,CMy,c="red")
@@ -576,6 +576,24 @@ def FindAreaForForce(rectdict, particle):
 	#CM?
 	#Det er ikke rigtigt, men, gad vide om det faktisk ER rigtigt i Barnes-Hut?
 
+
+	#Først, så fix at den måske kalder FindAreaForForce
+	#I stedet for FindParticle...
+	#Og bagefter, se på det om particle gerne må være indblandet i sin egen CM area?
+
+
+	#Kan måske bruge at "Partics" kun er i deepeste layers,
+	#Så, if "Partics" in rectdict: calculate ax,ay normally,
+	#else: is CMPARENT in rectdict?
+
+
+	#Hmm, jeg skal lgie passe på, at hver particle ikke bliver kaldt multiple times? Hmmmm...
+	#Eller, de må de vel faktisk godt? Der kan jo sagtens være flere steder den bruger multipole,
+	#for SAMME particle... fordi der er jo flere boxe hvor der er CM etc...
+
+
+	
+
 	if "CMPARENT" in rectdict:
 		if "r" in rectdict:
 			if rectdict["CMPARENT"][0] != 0:
@@ -585,9 +603,10 @@ def FindAreaForForce(rectdict, particle):
 				r = rectdict["r"]
 				#r = 10
 				#d = 2
-				if r/d < 10:
-					#print("Using multipole")
-					#print(particle["C"],particle["m"])
+
+				if r/d < 0.5:
+					print("Using multipole")
+					print(particle["C"],particle["m"])
 					particle["ax"] = particle["ax"] + (-1)*G*rectdict["CMPARENT"][0]*((particle["x"]-rectdict["CMPARENT"][1])
 														/((particle["x"]-rectdict["CMPARENT"][1])**2
 														+(particle["y"]-rectdict["CMPARENT"][2])**2)**(1.5))
@@ -601,9 +620,31 @@ def FindAreaForForce(rectdict, particle):
 				#CMPARENTS below som ligger langt nok væk...
 				#Men man kan jo som udgangspunkt prøve bare at tage alle underpartikler, hvis r/d
 				#er for tæt på...
-
+					for area in ["A1","A2","A3","A4"]:
+						if area in rectdict:
 					#Her bør jeg faktisk kalde FindAreaForForce(rectdict,particle)
-					FindParticleForForce(rectdict,particle)
+							FindAreaForForce(rectdict[area],particle)
+					#print("We doing particle searh here boi")
+					#print(particle["C"],particle["m"])
+					#FindParticleForForce(rectdict,particle)
+	else:
+
+		if "Partics" in rectdict:
+			print("We here now boi, particle")
+			print(particle["C"],particle["m"])
+			#
+			if len(rectdict["Partics"]) > 0:
+				for particle1 in rectdict["Partics"]:
+					if particle != rectdict["Partics"][particle1]:
+
+						particle["ax"] = particle["ax"] + (-1)*G*rectdict["Partics"][particle1]["m"]*((particle["x"]-rectdict["Partics"][particle1]["x"])
+																/((particle["x"]-rectdict["Partics"][particle1]["x"])**2
+																+(particle["y"]-rectdict["Partics"][particle1]["y"])**2)**(1.5))
+						
+						particle["ay"] = particle["ay"] + (-1)*G*rectdict["Partics"][particle1]["m"]*((particle["y"]-rectdict["Partics"][particle1]["y"])
+																/((particle["x"]-rectdict["Partics"][particle1]["x"])**2
+																+(particle["y"]-rectdict["Partics"][particle1]["y"])**2)**(1.5))
+
 					#pass
 	#for area in ["A1","A2","A3","A4"]:
 		#if area in rectdict:
@@ -855,9 +896,7 @@ for pointkey in points:
 # print("Calculate Center of Mass of cells/areas")
 #CenterOfMass(Dict)
 
-PrintDict()
-print(Dict)
-print(points.keys())
+
 
 
 
@@ -867,6 +906,11 @@ level = 0
 CenterOfMass(Dict)
 CalcForceFirst(Dict,level)
 UpdateOld(Dict)
+
+PrintDict()
+print(Dict)
+print(points.keys())
+
 
 print("Print Dict after clear")
 

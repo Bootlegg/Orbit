@@ -17,8 +17,8 @@ Testing the virial theorem
 ![Virial.png](https://github.com/mintDan/Orbit/blob/master/figs/Virial.png)
 
 ## Barnes-Hut algorithm
-Uses the Barnes-Hut algo made with dictionaries. Uses a Quadtree for O(NlogN) efficiency, instead of direct summation. Working on the multipole expansion of gravity.  
-If a planet/particle is sufficiently far away, the force from distant masses can be approximated by their center of mass.
+Uses the Barnes-Hut algo made with dictionaries. Uses a Quadtree for O(NlogN) efficiency, instead of direct summation O(N^2).
+If a planet/particle is sufficiently far away, the force from distant masses can be approximated by their center of mass, using a multipole expansion.
 
 ![BH.png](https://github.com/mintDan/Orbit/blob/master/figs/BH.png)
 
