@@ -568,31 +568,48 @@ def CalcForce(rectdict,level):
 			#level -= 1
 
 def FindAreaForForce(rectdict, particle):
+
+	#Hmm, jeg skal passe på at jeg ikke bruger CenterOfMass af en area, hvor partikel ALLEREDE
+	#befinder sig i...
+	#Hmm tror faktisk jeg måske gør det nu..
+	#Lige nu bruger jeg sikker CenterOfMass til particles, hvor particle i sig selv er en del af
+	#CM?
+	#Det er ikke rigtigt, men, gad vide om det faktisk ER rigtigt i Barnes-Hut?
+
 	if "CMPARENT" in rectdict:
 		if "r" in rectdict:
 			if rectdict["CMPARENT"][0] != 0:
 				#Vi skal lige tjekke om M = 0, fordi så er vi i deepest level
 
-				d = np.sqrt((particle["x"]-rectdict["CMPARENT"][0])**2+(particle["y"]-rectdict["CMPARENT"][1])**2)
+				d = np.sqrt((particle["x"]-rectdict["CMPARENT"][1])**2+(particle["y"]-rectdict["CMPARENT"][2])**2)
 				r = rectdict["r"]
-				r = 10
-				d = 2
-				if r/d < 0.5:
-					particle["ax"] = particle["ax"] + (-1)*G*rectdict["CMPARENT"][2]*((particle["x"]-rectdict["CMPARENT"][0])
-														/((particle["x"]-rectdict["CMPARENT"][0])**2
-														+(particle["y"]-rectdict["CMPARENT"][1])**2)**(1.5))
+				#r = 10
+				#d = 2
+				if r/d < 10:
+					#print("Using multipole")
+					#print(particle["C"],particle["m"])
+					particle["ax"] = particle["ax"] + (-1)*G*rectdict["CMPARENT"][0]*((particle["x"]-rectdict["CMPARENT"][1])
+														/((particle["x"]-rectdict["CMPARENT"][1])**2
+														+(particle["y"]-rectdict["CMPARENT"][2])**2)**(1.5))
 
-					particle["ay"] = particle["ay"] + (-1)*G*rectdict["CMPARENT"][2]*((particle["y"]-rectdict["CMPARENT"][1])
-														/((particle["x"]-rectdict["CMPARENT"][0])**2
-														+(particle["y"]-rectdict["CMPARENT"][1])**2)**(1.5))
+					particle["ay"] = particle["ay"] + (-1)*G*rectdict["CMPARENT"][0]*((particle["y"]-rectdict["CMPARENT"][2])
+														/((particle["x"]-rectdict["CMPARENT"][1])**2
+														+(particle["y"]-rectdict["CMPARENT"][2])**2)**(1.5))
 				else:
 				#Her har jeg konstateret, at der CMPARENT er for tæt på, så jeg er
 				#nødt til at tage alle under partikler/eller i hvert fald se om der er nogle
 				#CMPARENTS below som ligger langt nok væk...
 				#Men man kan jo som udgangspunkt prøve bare at tage alle underpartikler, hvis r/d
 				#er for tæt på...
+
+					#Her bør jeg faktisk kalde FindAreaForForce(rectdict,particle)
 					FindParticleForForce(rectdict,particle)
 					#pass
+	#for area in ["A1","A2","A3","A4"]:
+		#if area in rectdict:
+	
+			#FindAreaForForce(rectdict[area],particle)#,Fx,Fy)	
+			
 			#else:
 				#FindParticleForForce(rectdict,particle)
 		#else:
@@ -602,35 +619,6 @@ def FindAreaForForce(rectdict, particle):
 		#Vi har altså, af en eller anden grund, ikke "CMPARENT" i rectdict
 		#FindParticleForForce(rectdict,particle)
 
-	#else:
-	# if "CMOUTCOMENNETED" in rectdict:
-	# 	d = np.sqrt((particle["x"]-rectdict["CM"][0])**2+(particle["y"]-rectdict["CM"][1])**2)
-	# 	r = rectdict["r"]
-
-	# 	r=2
-	# 	d=1
-	# 	if r/d < 0.5:
-	# 		particle["ax"] = particle["ax"] + (-1)*G*rectdict["CM"][2]*((particle["x"]-rectdict["CM"][0])
-	# 											/((particle["x"]-rectdict["CM"][0])**2
-	# 											+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
-
-	# 		particle["ay"] = particle["ay"] + (-1)*G*rectdict["CM"][2]*((particle["y"]-rectdict["CM"][1])
-	# 											/((particle["x"]-rectdict["CM"][0])**2
-	# 											+(particle["y"]-rectdict["CM"][1])**2)**(1.5))
-	# 	else:
-	# 		for partic2 in rectdict["Partics"]:
-	# 			if particle != rectdict["Partics"][partic2]:
-	# 				particle["ax"] = particle["ax"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["x"]-rectdict["Partics"][partic2]["x"])
-	# 																/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
-	# 																+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
-
-	# 				particle["ay"] = particle["ay"] + (-1)*G*rectdict["Partics"][partic2]["m"]*((particle["y"]-rectdict["Partics"][partic2]["y"])
-	# 																/((particle["x"]-rectdict["Partics"][partic2]["x"])**2
-	# 																+(particle["y"]-rectdict["Partics"][partic2]["y"])**2)**(1.5))
-
-	# for area in ["A1","A2","A3","A4"]:
-	# 	if area in rectdict:
-	# 		FindAreaForForce(rectdict[area],particle)
 
 def FindParticleForForce(rectdict,particle):#,Fx,Fy):
 	#global Fx, Fy
