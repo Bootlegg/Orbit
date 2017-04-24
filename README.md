@@ -10,11 +10,14 @@ Simulation of Earth, Sun, Mars, Mercury, Jupiter and Venus.
 Currently the time step is loaded from a fortran module. The fortran module is converted to be callable within Python from f2py.
 In the future the numerical steps will be made in fortran to compare speed against NumPy.  
 Based on real parameters(mass, orbit speed) from Wikipedia.  
-###Simulation
+### Simulation
 ![Orbit.png](https://github.com/mintDan/Orbit/blob/master/figs/Orbit.png)
-###Virial Theorem
+### Virial Theorem and Total Energy
 Testing the virial theorem
 ![Virial.png](https://github.com/mintDan/Orbit/blob/master/figs/Virial.png)
+### Total Angular Momentum
+Testing conservation of total angular momentum
+![AngularMomentum.png](https://github.com/mintDan/Orbit/blob/master/figs/AngularMomentum.png)
 
 ## Barnes-Hut algorithm
 Uses the Barnes-Hut algo made with dictionaries. Uses a Quadtree for O(NlogN) efficiency, instead of direct summation O(N^2).
@@ -22,7 +25,7 @@ If a planet/particle is sufficiently far away, the force from distant masses can
 
 ![BH.png](https://github.com/mintDan/Orbit/blob/master/figs/BH.png)
 
-##Path through minimization of Action
+## Path through minimization of Action
 The true path travelled by an object will minimize the Action S, which truely is a phenomenal and jaw-dropping insight. The Lagrangian L is given by the potential energy subtracted from the kinetic energy.
 
 ![Lapprox.png](https://github.com/mintDan/Orbit/blob/master/figs/Lapprox.png)
