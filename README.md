@@ -13,7 +13,7 @@ Based on real parameters(mass, orbit speed) from Wikipedia.
 ### Simulation
 ![Orbit.png](https://github.com/mintDan/Orbit/blob/master/figs/Orbit.png)
 ### Virial Theorem and Total Energy
-Testing the virial theorem
+Testing the virial theorem  and conservation of total energy.  
 ![Virial.png](https://github.com/mintDan/Orbit/blob/master/figs/Virial.png)
 ### Total Angular Momentum
 Testing conservation of total angular momentum
