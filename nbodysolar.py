@@ -92,7 +92,7 @@ print(tcr/dt)
 print("Done with add, now for accel")
 
 #iterations
-nt = 10000
+nt = 1000
 
 
 #========================================================================
@@ -343,11 +343,24 @@ def StormerVerlet(axs,ays,us,vs,Ts,Vs,Tavgs,Vavgs,dts,dtmin):
 		axs[:] = 0
 		ays[:] = 0
 		#Acceleration
+		#for i in range(Np):
+		#	for j in range(Np):
+		#		if j != i: #Here, either do n or n+1
+		#			axs[i] += -ms[j]/((xs[n,i]-xs[n,j])**2+(ys[n,i]-ys[n,j])**2)**(1.5)*(xs[n,i]-xs[n,j])
+		#			ays[i] += -ms[j]/((xs[n,i]-xs[n,j])**2+(ys[n,i]-ys[n,j])**2)**(1.5)*(ys[n,i]-ys[n,j])
+		
+		#try 1/2 * N(N-1)
 		for i in range(Np):
-			for j in range(Np):
-				if j != i: #Here, either do n or n+1
-					axs[i] += -ms[j]/((xs[n,i]-xs[n,j])**2+(ys[n,i]-ys[n,j])**2)**(1.5)*(xs[n,i]-xs[n,j])
-					ays[i] += -ms[j]/((xs[n,i]-xs[n,j])**2+(ys[n,i]-ys[n,j])**2)**(1.5)*(ys[n,i]-ys[n,j])
+			for j in range(i+1,Np):
+				axji = -1/((xs[n,i]-xs[n,j])**2+(ys[n,i]-ys[n,j])**2)**(1.5)*(xs[n,i]-xs[n,j])
+				ayji = -1/((xs[n,i]-xs[n,j])**2+(ys[n,i]-ys[n,j])**2)**(1.5)*(ys[n,i]-ys[n,j])
+				
+				axs[i] += ms[j]*axji
+				ays[i] += ms[j]*ayji
+				
+				axs[j] += -ms[i]*axji
+				ays[j] += -ms[i]*ayji
+		
 		#update velocity
 		#velocity either n or n+1, n+1 works with Euler Forward
 
@@ -513,6 +526,7 @@ fig3.savefig('AngularMomentum.png', bbox_inches='tight')
 # ax3.yaxis.tick_right()
 #ax3.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 #===============================================================
+#Plot Eccentricity
 #analyze sun motion? or maybe earth? let's start with earth
 #should be same periods no matter what we do with it, right? Maybe?
 plt.figure(6)
@@ -523,7 +537,7 @@ plt.title("Eccentricity of Earth-Sun")
 plt.axis([0,nt,min(e[:-2]),max(e[:-2])])
 
 print("Eccentricities of Earth-Sun")
-print(e[-20:-2])
+print(e[0:20])
 
 #==============================================================
 #Sun velocity... måske lidt bedre end position, fordi, velocity får man fra rødforskydning etc når solen kommer tættere/nærmere
@@ -546,7 +560,7 @@ def DFT():
 	k = 10 #siger vi lige
 	Xk = 0
 	#Vdat1 = vs[:-2,0]
-	Vdat1 = ys[:-2,0]
+	Vdat1 = e[:-2]
 	#Vdat1 = Vdat1[]
 	Ndat = len(Vdat1)
 	vdat = np.array(Vdat1,dtype=complex)
@@ -554,14 +568,16 @@ def DFT():
 
 	pi2= 2.0*np.pi
 
-	for k in range(Ndat):
-		for n in range(Ndat):
-			Xkarray[k] += vdat[n]*np.exp(-1j*pi2*k*n/Ndat)
+	#for k in range(Ndat):
+	#	for n in range(Ndat):
+	#		Xkarray[k] += vdat[n]*np.exp(-1j*pi2*k*n/Ndat)
 	#print(Xk)
-	Xkarray *= 1/Ndat
-	print(Xkarray[0:10])
+	#Xkarray *= 1/Ndat
+	#print(Xkarray[0:10])
 
-	Xkarray1 = np.fft.fft(Vdat1)
+	Xkarray1 = np.fft.fft(vdat)
+	
+	AbsArray = np.absolute(Xkarray1)
 
 	plt.figure(8)
 	plt.xlabel("k")
@@ -569,11 +585,11 @@ def DFT():
 	plt.title("Fourier transform")
 	#plt.plot(Xkarray1.imag,color="red")
 	#plt.plot(Xkarray1.real,color="blue")
-	#plt.axis([0,100,0,10])
-	plt.plot(np.absolute(Xkarray),color="black")
+	plt.axis([0,5,0,max(AbsArray)])
+	plt.plot(AbsArray,color="black")
 
 
-#DFT()
+DFT()
 	
 def PlotOrbit():
 	plt.figure(9)

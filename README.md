@@ -10,6 +10,8 @@ Simulation of Earth, Sun, Mars, Mercury, Jupiter and Venus.
 Currently the time step is loaded from a fortran module. The fortran module is converted to be callable within Python from f2py.
 In the future the numerical steps will be made in fortran to compare speed against NumPy.  
 Based on real parameters(mass, orbit speed) from Wikipedia.  
+The force is calculated directly and thus takes 1/2*N*(N-1) evaluations. Symmetry, by Newton's 3rd law, reduces the number of direct evaluations required.  
+
 ### Simulation
 ![Orbit.png](https://github.com/mintDan/Orbit/blob/master/figs/Orbit.png)
 ### Virial Theorem and Total Energy
