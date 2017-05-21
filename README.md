@@ -20,6 +20,14 @@ Testing the virial theorem  and conservation of total energy.
 ### Total Angular Momentum
 Testing conservation of total angular momentum
 ![AngularMomentum.png](https://github.com/mintDan/Orbit/blob/master/figs/AngularMomentum.png)
+### Orbital periods with DFT
+Seeing if we can observe the orbital periods of the planets through Discrete Fourier Transform. Looking here at speed of the Sun.  
+The first big peak corresponds to Jupiter period of around 12 years, and gives as known the biggest impact on the sun, ie. the center of mass of the Solar System is mostly between Sun-Jupiter
+The peak at around k = 410 gives a period of 1 year, which is the pull from Earth on the sun.  
+A small peak at around k = 490 gives 0.6 years of orbital period, which is from Venus.  
+The peaks for Mars and Mercury seem to be displaced to greater extent than the rest, maybe due to poor initial conditions,
+giving an orbit period of 1.44 for Mars, where expected orbit period is around 1.88.
+![DFT.png](https://github.com/mintDan/Orbit/blob/master/figs/DFT.png)
 
 ## Barnes-Hut algorithm
 Uses the Barnes-Hut algo made with dictionaries. Uses a Quadtree for O(NlogN) efficiency, instead of direct summation O(N^2).

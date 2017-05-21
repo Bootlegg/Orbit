@@ -63,7 +63,7 @@ Np = Planet.PlanetCount
 
 G = 6.67*10**(-11)
 
-tfaktor = 1
+tfaktor = 0.4
 dt = tfaktor*300000#300000 #seems about right
 year = 365.20*24*60*60
 
@@ -92,7 +92,7 @@ print(tcr/dt)
 print("Done with add, now for accel")
 
 #iterations
-nt = 1000
+nt = 65000
 
 
 #========================================================================
@@ -495,7 +495,7 @@ print("Potential energy from nbody units")
 print(-Gs*M0**2/R0)
 
 
-print("Gravitational Nbody constant, should be Gs = 1?")
+print("Gravitational Nbody constant, should be Gs = 1")
 print(Gs)
 
 #=============================================================
@@ -543,10 +543,10 @@ print(e[0:20])
 #Sun velocity... måske lidt bedre end position, fordi, velocity får man fra rødforskydning etc når solen kommer tættere/nærmere
 #Btw, vi har måske ikke hele period fra Jupiter med?!
 plt.figure(7)
-plt.plot(xs[:-2,0],color="black")
-plt.plot(ys[:-2,0],color="black")
+plt.plot(us[:-2,0],color="black")
+plt.plot(vs[:-2,0],color="black")
 plt.xlabel("timestep n")
-#plt.ylabel("v(t) m/s")
+plt.ylabel("v(t) m/s")
 plt.title("Periodic data from Sun")
 
 
@@ -556,13 +556,30 @@ plt.title("Periodic data from Sun")
 
 
 def DFT():
+
+	"""
+	DFT of some data to see if we can find orbital periods in the mix
+	
+	using vs, peaks at
+	k = 20
+	k = 40
+	k = 240
+	k = 390
+	What does this correspond to in time?
+	
+	"""
+
+	
 	print("Doing DFT")
 	k = 10 #siger vi lige
 	Xk = 0
-	#Vdat1 = vs[:-2,0]
-	Vdat1 = e[:-2]
-	#Vdat1 = Vdat1[]
+	Vdat1 = vs[:-1,0]
 	Ndat = len(Vdat1)
+	print("Number of data points")
+	print(Ndat)
+	#Vdat1 = e[:-2]
+	#Vdat1 = Vdat1[]
+	
 	vdat = np.array(Vdat1,dtype=complex)
 	Xkarray = np.zeros(Ndat,dtype=complex)
 
@@ -579,14 +596,50 @@ def DFT():
 	
 	AbsArray = np.absolute(Xkarray1)
 
-	plt.figure(8)
+	fig8 = plt.figure(8)
 	plt.xlabel("k")
 	plt.ylabel("Xk")
-	plt.title("Fourier transform")
+	plt.title("Discrete Fourier transform, Sun speed v")
 	#plt.plot(Xkarray1.imag,color="red")
 	#plt.plot(Xkarray1.real,color="blue")
-	plt.axis([0,5,0,max(AbsArray)])
+	plt.axis([0,1000,0,0.1])
 	plt.plot(AbsArray,color="black")
+	
+
+	#print(2*np.pi*25/Ndat)
+	#print(2*np.pi*240/Ndat)
+	#print(2*np.pi*390/Ndat)
+	#Disse er vidst angular frequency, så f = w/2*pi... så får jeg k/Ndat... men det skal være pr sekund, så måske k/(Ndat*dt)?
+	#f1 = 25/(Ndat*dt)
+	#f2 = 240/(Ndat*dt)
+	#f3 = 390/(Ndat*dt)
+	
+	#Period er så 1/f = T
+	#T1 = 1/f1
+	#T2 = 1/f2
+	#T3 = 1/f3
+	
+	#T1year = T1/(365*24*60*60)
+	#T2year = T2/(365*24*60*60)
+	#T3year = T3/(365*24*60*60)
+	
+	#print(T1year)
+	#print(T2year)
+	#print(T3year)
+	
+	ks = np.array([21,40,174,238,410,490,520,700,2000,4000])
+	print(ks)
+	fs = ks/(Ndat*dt)
+	Tperiods = 1/fs
+	Tperiodsyears = Tperiods/(365*24*60*60)
+	print(Tperiodsyears)
+	
+	PeriodOrbitalsWiki = [11.86,1.88,1,0.61,0.24]
+	print(PeriodOrbitalsWiki)
+	
+	fig8.savefig('DFT.png', bbox_inches='tight')
+	
+	print("DFT done")
 
 
 DFT()
@@ -602,6 +655,15 @@ def PlotOrbit():
 PlotOrbit()
 
 
+
+
+
+
+
+
+
+#==============================================================
+#Animation
 fig = plt.figure(5)
 ax = fig.gca()
 #ax.set_xlim(-2*R0,2*R0)
@@ -630,8 +692,6 @@ def animateUnits(i): #i increment with 1 each step
 
 	
 animUnits = animation.FuncAnimation(fig, animateUnits, frames=nt, interval=100)
-
-
 
 plt.show()
 
