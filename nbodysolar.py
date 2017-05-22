@@ -23,172 +23,6 @@ class Planet:
 		Planet.planets.append(self)
 		Planet.m.append(self.mass)
 
-
-
-
-#instance Planet(mass,x,y,u,vradius)
-#x,y,u,v are initial conditions for the motion and position
-Sun = Planet(2*10**30,0,-695700*10**3/2,347850/(365*24*3.6),0,695700*10**3)
-
-Mercury = Planet(3.3*10**23,0,-46001200*10**3,47.362*10**3,0,2440*10**3)
-
-Venus = Planet(4.87*10**24,-108200000*10**3,0,0,-35000,6052*10**3)
-
-Earth = Planet(6*10**24,1.5*10**11,0,0,29800,6371*10**3)
-
-Mars = Planet(6.417*10**23,0,1.3814*1.5*10**11,-24.077*10**3,0,3389*10**3)
-
-Jupiter = Planet(1.898*10**27,0,778500000*10**3,-13.07*10**3,0,69.911*10**3)
-
-
-print("Number of planets = {}".format(Planet.PlanetCount))
-print("Planet masses")
-for i in range(Planet.PlanetCount):
-	print(Planet.planets[i].mass)
-
-m = np.array(Planet.m)
-
-
-#print(P0.name)
-
-# planets[0] = Sun
-# planets[1] = mercury
-# for i in range(Planet.PlanetCount):
-# 	planets[i] = 
-
-
-#units
-AU = 1.5*10**11
-Np = Planet.PlanetCount
-
-G = 6.67*10**(-11)
-
-tfaktor = 0.4
-dt = tfaktor*300000#300000 #seems about right
-year = 365.20*24*60*60
-
-timeratio = dt/year
-
-
-#print(add.num()[0])
-#print(add.num()[1])
-
-#====================================
-#Print critical time #1.5*10**11 778500000*10**3
-print("Largest critical time, using R = Mercury distance to sun")
-tcr = np.sqrt(G*np.sum(m)/(46001200*10**3)**3)
-print(tcr)
-print("Timesteps to reach dynamic equilibrium")
-print(tcr/dt)
-
-
-print("Smallest critical time, using R = Jupiter distance to sun")
-tcr = np.sqrt(G*np.sum(m)/(778500000*10**3)**3)
-print(tcr)
-print("Timesteps to reach dynamic equilibrium")
-print(tcr/dt)
-
-
-print("Done with add, now for accel")
-
-#iterations
-nt = 65000
-
-
-#========================================================================
-#Scaled nbody units
-M0 = np.sum(m)
-R0 = 1.5*10**11
-T0 = np.sqrt(R0**3/(G*M0))
-V0 = R0/T0
-A0 = R0/(T0*T0)
-
-
-ms = m/M0
-dts = dt/T0
-Gs = G*M0*T0*T0/R0**3
-
-xs = np.zeros((1+nt,Np))/R0
-ys = np.zeros((1+nt,Np))/R0
-axs = np.zeros(Np)/A0
-ays = np.zeros(Np)/A0
-axs1 = np.zeros(Np)/A0
-ays1 = np.zeros(Np)/A0
-us = np.zeros((1+nt,Np))/V0
-vs = np.zeros((1+nt,Np))/V0
-Ts = np.zeros(1+nt)
-Vs = np.zeros(1+nt)
-
-Lzs = np.zeros(1+nt) #Angular momentum, only in z direction
-Pxs = np.zeros(1+nt) #linear momentum
-Pys = np.zeros(1+nt)
-
-Tavgs = np.zeros(1+nt)
-Vavgs = np.zeros(1+nt)
-
-es = np.zeros(1+nt) #eccentricity 
-e = np.zeros(1+nt)
-
-for i in range(Np):
-	#x[0,i] = Planet.planets[i].x0
-	#y[0,i] = Planet.planets[i].y0
-	#u[0,i] = Planet.planets[i].u0
-	#v[0,i] = Planet.planets[i].v0
-	
-	xs[0,i] = Planet.planets[i].x0/R0
-	ys[0,i] = Planet.planets[i].y0/R0
-	us[0,i] = Planet.planets[i].u0/V0
-	vs[0,i] = Planet.planets[i].v0/V0
-
-
-#====================================================================
-print("Time unit")
-print(2*np.sqrt(2))
-print(T0)
-
-
-
-
-#=============================================================
-#Initial linear momentum
-#for i in range(Np):
-#	print(u[0,i]*m[i])
-#	Px[0] += u[0,i]*m[i]
-#	Py[0] += v[0,i]*m[i]
-print("Initial Linear Momentum Pxs")
-for i in range(Np):
-	print(us[0,i]*ms[i])
-	Pxs[0] += us[0,i]*ms[i]
-	Pys[0] += vs[0,i]*ms[i]
-
-#=============================================================
-#Initial angular momentum
-print("Initial Angular Momentum")
-for i in range(Np):
-	#Lz[0] = m[i]*(x[0,i]*v[0,i]-y[0,i]*u[0,i])
-	Lzs[0] = ms[i]*(xs[0,i]*vs[0,i]-ys[0,i]*us[0,i])
-	print(Lzs[0])
-	
-	
-#============================================================
-#Initial eccentricity
-#mu = 2*10**30*6*10**24/(2*10**30+6*10**24)
-
-#mu = 12*10**30/(2*10**6+6)
-
-mu = ms[0]*ms[3]/(ms[0]+ms[3])
-#e[0] = np.sqrt(1+2*Lzs[0]**2*(Ts[0]+Vs[0])/(mu*G**2))
-Learth = ms[3]*(xs[0,3]*vs[0,3]-ys[0,3]*us[0,3])
-Eearth = 0.5*ms[3]*(us[0,3]**2+vs[0,3]**2) - ms[0]*ms[3]/np.sqrt((xs[0,3]-xs[0,0])**2+(ys[0,3]-ys[0,0])**2)
-e[0] = np.sqrt(1+2*Learth**2*Eearth/mu)
-
-#=========================================================================
-#Timevariable
-dtmin = dts
-
-
-
-
 #=============================================================
 #Start main integraton loop!
 
@@ -443,117 +277,11 @@ def StormerVerlet(axs,ays,us,vs,Ts,Vs,Tavgs,Vavgs,dts,dtmin):
 			#x[n+1,i] = x[n,i]+dt*(0.5*u[n+1,i]+0.5*u[n,i])
 			#y[n+1,i] = y[n,i]+dt*(0.5*v[n+1,i]+0.5*v[n,i])
 
-StormerVerlet(axs,ays,us,vs,Ts,Vs,Tavgs,Vavgs,dts,dtmin)
+
 #Leapfrog(axs,ays,us,vs,Ts,Vs,Tavgs,Vavgs,dts)
 
 #print(Px[0:20])
 #print(Px[-40:-2])
-print("timesteps")
-print(dts)
-print(dtmin)
-#=============================================================
-#Virial plot
-fig1 = plt.figure(1)
-#ax1 = fig1.gca()
-ax1 = fig1.add_subplot(121)
-#ax1.plot(T,c='red')
-#ax1.plot(V,c='blue')
-ax1.plot(Tavgs[1:-2]/10**(-5),c='red')
-ax1.plot(-0.5*Vavgs[1:-2]/10**(-5),c='blue')
-ax1.set_title('Virial Theorem')
-ax1.set_xlabel('timestep n')
-ax1.set_ylabel('Energy / e-5')
-ax1.legend(['T', '-1/2 V'])
-ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-
-
-Etotal = Ts[:-2]+Vs[:-2]
-#ticks = np.linspace(min(Etotal),max(Etotal),5)
-
-#Total energy plot
-#fig2 = plt.figure(2)
-#ax2 = fig2.gca()
-ax2 = fig1.add_subplot(122)
-#ax2.plot(Etotal/10**(-5),color="black")
-ax2.plot(Etotal,color="black")
-ax2.set_xlabel("timstep n")
-ax2.set_ylabel("Energy/e-5")
-ax2.set_title("Total energy")
-ax2.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-ax2.yaxis.set_label_position("right")
-ax2.yaxis.tick_right()
-
-fig1.savefig('Virial.png', bbox_inches='tight')
-
-print("Kinetic energy")
-print(Tavgs[1:15])
-print("Potential energy")
-print(Vavgs[1:15])
-
-print("Potential energy from nbody units")
-print(-Gs*M0**2/R0)
-
-
-print("Gravitational Nbody constant, should be Gs = 1")
-print(Gs)
-
-#=============================================================
-#Total angular momentum
-fig3 = plt.figure(3)
-ax3 = fig3.gca()
-#ax3 = fig3.add_subplot(121)
-ax3.plot(Lzs[1:-2]/10**(-3),color="black")
-#ax3.plot(Py[:-2],color="red")
-ax3.set_xlabel("timestep n")
-ax3.set_ylabel("Angular Momentum/e-3")
-ax3.set_title("Total Angular Momentum")
-ax3.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-#
-fig3.savefig('AngularMomentum.png', bbox_inches='tight')
-
-#Linear momentum
-#fig3 = plt.figure(4)
-#ax3 = fig3.gca()
-# ax3 = fig3.add_subplot(122)
-# ax3.plot(Pxs[1:-2]/10**(-5),color="black")#
-# #ax3.plot(Pys[:-2],color="red")
-# ax3.set_xlabel("timestep n")
-# ax3.set_ylabel("Momentum/e-2")
-# ax3.set_title("Total Linear Momentum")
-# ax3.axis([0,nt,min(Pxs[1:-2]),max(Pxs[1:-2])])
-# ax3.yaxis.set_label_position("right")
-# ax3.yaxis.tick_right()
-#ax3.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-#===============================================================
-#Plot Eccentricity
-#analyze sun motion? or maybe earth? let's start with earth
-#should be same periods no matter what we do with it, right? Maybe?
-plt.figure(6)
-plt.plot(e[:-2],color="black")
-plt.xlabel("timestep n")
-plt.ylabel("e eccentricity")
-plt.title("Eccentricity of Earth-Sun")
-plt.axis([0,nt,min(e[:-2]),max(e[:-2])])
-
-print("Eccentricities of Earth-Sun")
-print(e[0:20])
-
-#==============================================================
-#Sun velocity... måske lidt bedre end position, fordi, velocity får man fra rødforskydning etc når solen kommer tættere/nærmere
-#Btw, vi har måske ikke hele period fra Jupiter med?!
-plt.figure(7)
-plt.plot(us[:-2,0],color="black")
-plt.plot(vs[:-2,0],color="black")
-plt.xlabel("timestep n")
-plt.ylabel("v(t) m/s")
-plt.title("Periodic data from Sun")
-
-
-#DFT af sun data v[:-2,0]
-
-#Jeg mangler vel lidt med dt = 3000000 etc? Der skal lidt mere info ind i denne fourer transform i think
-
 
 def DFT():
 
@@ -642,7 +370,7 @@ def DFT():
 	print("DFT done")
 
 
-DFT()
+
 	
 def PlotOrbit():
 	plt.figure(9)
@@ -652,7 +380,7 @@ def PlotOrbit():
 	plt.plot(xs[0:-2,3], ys[0:-2,3],c="blue")
 	plt.plot(xs[0:-2,0], ys[0:-2,0],c="black")
 	
-PlotOrbit()
+
 
 
 
@@ -691,8 +419,290 @@ def animateUnits(i): #i increment with 1 each step
 	return None
 
 	
-animUnits = animation.FuncAnimation(fig, animateUnits, frames=nt, interval=100)
-
-plt.show()
 
 
+
+if __name__ == "__main__":
+	#Let's initiate here
+		
+	#instance Planet(mass,x,y,u,vradius)
+	#x,y,u,v are initial conditions for the motion and position
+	Sun = Planet(2*10**30,0,-695700*10**3/2,347850/(365*24*3.6),0,695700*10**3)
+
+	Mercury = Planet(3.3*10**23,0,-46001200*10**3,47.362*10**3,0,2440*10**3)
+
+	Venus = Planet(4.87*10**24,-108200000*10**3,0,0,-35000,6052*10**3)
+
+	Earth = Planet(6*10**24,1.5*10**11,0,0,29800,6371*10**3)
+
+	Mars = Planet(6.417*10**23,0,1.3814*1.5*10**11,-24.077*10**3,0,3389*10**3)
+
+	Jupiter = Planet(1.898*10**27,0,778500000*10**3,-13.07*10**3,0,69.911*10**3)
+
+
+	print("Number of planets = {}".format(Planet.PlanetCount))
+	print("Planet masses")
+	for i in range(Planet.PlanetCount):
+		print(Planet.planets[i].mass)
+
+	m = np.array(Planet.m)
+
+
+	#print(P0.name)
+
+	# planets[0] = Sun
+	# planets[1] = mercury
+	# for i in range(Planet.PlanetCount):
+	# 	planets[i] = 
+
+
+	#units
+	AU = 1.5*10**11
+	Np = Planet.PlanetCount
+
+	G = 6.67*10**(-11)
+
+	tfaktor = 0.4
+	dt = tfaktor*300000#300000 #seems about right
+	year = 365.20*24*60*60
+
+	timeratio = dt/year
+
+
+	#print(add.num()[0])
+	#print(add.num()[1])
+
+	#====================================
+	#Print critical time #1.5*10**11 778500000*10**3
+	print("Largest critical time, using R = Mercury distance to sun")
+	tcr = np.sqrt(G*np.sum(m)/(46001200*10**3)**3)
+	print(tcr)
+	print("Timesteps to reach dynamic equilibrium")
+	print(tcr/dt)
+
+
+	print("Smallest critical time, using R = Jupiter distance to sun")
+	tcr = np.sqrt(G*np.sum(m)/(778500000*10**3)**3)
+	print(tcr)
+	print("Timesteps to reach dynamic equilibrium")
+	print(tcr/dt)
+
+
+	print("Done with add, now for accel")
+
+	#iterations
+	nt = 65000
+
+
+	#========================================================================
+	#Scaled nbody units
+	M0 = np.sum(m)
+	R0 = 1.5*10**11
+	T0 = np.sqrt(R0**3/(G*M0))
+	V0 = R0/T0
+	A0 = R0/(T0*T0)
+
+
+	ms = m/M0
+	dts = dt/T0
+	Gs = G*M0*T0*T0/R0**3
+
+	xs = np.zeros((1+nt,Np))/R0
+	ys = np.zeros((1+nt,Np))/R0
+	axs = np.zeros(Np)/A0
+	ays = np.zeros(Np)/A0
+	axs1 = np.zeros(Np)/A0
+	ays1 = np.zeros(Np)/A0
+	us = np.zeros((1+nt,Np))/V0
+	vs = np.zeros((1+nt,Np))/V0
+	Ts = np.zeros(1+nt)
+	Vs = np.zeros(1+nt)
+
+	Lzs = np.zeros(1+nt) #Angular momentum, only in z direction
+	Pxs = np.zeros(1+nt) #linear momentum
+	Pys = np.zeros(1+nt)
+
+	Tavgs = np.zeros(1+nt)
+	Vavgs = np.zeros(1+nt)
+
+	es = np.zeros(1+nt) #eccentricity 
+	e = np.zeros(1+nt)
+
+	for i in range(Np):
+		#x[0,i] = Planet.planets[i].x0
+		#y[0,i] = Planet.planets[i].y0
+		#u[0,i] = Planet.planets[i].u0
+		#v[0,i] = Planet.planets[i].v0
+		
+		xs[0,i] = Planet.planets[i].x0/R0
+		ys[0,i] = Planet.planets[i].y0/R0
+		us[0,i] = Planet.planets[i].u0/V0
+		vs[0,i] = Planet.planets[i].v0/V0
+
+
+	#====================================================================
+	print("Time unit")
+	print(2*np.sqrt(2))
+	print(T0)
+
+
+
+
+	#=============================================================
+	#Initial linear momentum
+	#for i in range(Np):
+	#	print(u[0,i]*m[i])
+	#	Px[0] += u[0,i]*m[i]
+	#	Py[0] += v[0,i]*m[i]
+	print("Initial Linear Momentum Pxs")
+	for i in range(Np):
+		print(us[0,i]*ms[i])
+		Pxs[0] += us[0,i]*ms[i]
+		Pys[0] += vs[0,i]*ms[i]
+
+	#=============================================================
+	#Initial angular momentum
+	print("Initial Angular Momentum")
+	for i in range(Np):
+		#Lz[0] = m[i]*(x[0,i]*v[0,i]-y[0,i]*u[0,i])
+		Lzs[0] = ms[i]*(xs[0,i]*vs[0,i]-ys[0,i]*us[0,i])
+		print(Lzs[0])
+		
+		
+	#============================================================
+	#Initial eccentricity
+	#mu = 2*10**30*6*10**24/(2*10**30+6*10**24)
+
+	#mu = 12*10**30/(2*10**6+6)
+
+	mu = ms[0]*ms[3]/(ms[0]+ms[3])
+	#e[0] = np.sqrt(1+2*Lzs[0]**2*(Ts[0]+Vs[0])/(mu*G**2))
+	Learth = ms[3]*(xs[0,3]*vs[0,3]-ys[0,3]*us[0,3])
+	Eearth = 0.5*ms[3]*(us[0,3]**2+vs[0,3]**2) - ms[0]*ms[3]/np.sqrt((xs[0,3]-xs[0,0])**2+(ys[0,3]-ys[0,0])**2)
+	e[0] = np.sqrt(1+2*Learth**2*Eearth/mu)
+
+	#=========================================================================
+	#Timevariable
+	dtmin = dts
+	
+	#=========================================================================
+	#Call main function
+	StormerVerlet(axs,ays,us,vs,Ts,Vs,Tavgs,Vavgs,dts,dtmin)
+	
+	print("timesteps")
+	print(dts)
+	print(dtmin)
+	#=============================================================
+	#Virial plot
+	fig1 = plt.figure(1)
+	#ax1 = fig1.gca()
+	ax1 = fig1.add_subplot(121)
+	#ax1.plot(T,c='red')
+	#ax1.plot(V,c='blue')
+	ax1.plot(Tavgs[1:-2]/10**(-5),c='red')
+	ax1.plot(-0.5*Vavgs[1:-2]/10**(-5),c='blue')
+	ax1.set_title('Virial Theorem')
+	ax1.set_xlabel('timestep n')
+	ax1.set_ylabel('Energy / e-5')
+	ax1.legend(['T', '-1/2 V'])
+	ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+
+
+
+	Etotal = Ts[:-2]+Vs[:-2]
+	#ticks = np.linspace(min(Etotal),max(Etotal),5)
+
+	#Total energy plot
+	#fig2 = plt.figure(2)
+	#ax2 = fig2.gca()
+	ax2 = fig1.add_subplot(122)
+	#ax2.plot(Etotal/10**(-5),color="black")
+	ax2.plot(Etotal,color="black")
+	ax2.set_xlabel("timstep n")
+	ax2.set_ylabel("Energy/e-5")
+	ax2.set_title("Total energy")
+	ax2.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+	ax2.yaxis.set_label_position("right")
+	ax2.yaxis.tick_right()
+
+	fig1.savefig('Virial.png', bbox_inches='tight')
+
+	print("Kinetic energy")
+	print(Tavgs[1:15])
+	print("Potential energy")
+	print(Vavgs[1:15])
+
+	print("Potential energy from nbody units")
+	print(-Gs*M0**2/R0)
+
+
+	print("Gravitational Nbody constant, should be Gs = 1")
+	print(Gs)
+
+	#=============================================================
+	#Total angular momentum
+	fig3 = plt.figure(3)
+	ax3 = fig3.gca()
+	#ax3 = fig3.add_subplot(121)
+	ax3.plot(Lzs[1:-2]/10**(-3),color="black")
+	#ax3.plot(Py[:-2],color="red")
+	ax3.set_xlabel("timestep n")
+	ax3.set_ylabel("Angular Momentum/e-3")
+	ax3.set_title("Total Angular Momentum")
+	ax3.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+	#
+	fig3.savefig('AngularMomentum.png', bbox_inches='tight')
+
+	#Linear momentum
+	#fig3 = plt.figure(4)
+	#ax3 = fig3.gca()
+	# ax3 = fig3.add_subplot(122)
+	# ax3.plot(Pxs[1:-2]/10**(-5),color="black")#
+	# #ax3.plot(Pys[:-2],color="red")
+	# ax3.set_xlabel("timestep n")
+	# ax3.set_ylabel("Momentum/e-2")
+	# ax3.set_title("Total Linear Momentum")
+	# ax3.axis([0,nt,min(Pxs[1:-2]),max(Pxs[1:-2])])
+	# ax3.yaxis.set_label_position("right")
+	# ax3.yaxis.tick_right()
+	#ax3.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+	#===============================================================
+	#Plot Eccentricity
+	#analyze sun motion? or maybe earth? let's start with earth
+	#should be same periods no matter what we do with it, right? Maybe?
+	plt.figure(6)
+	plt.plot(e[:-2],color="black")
+	plt.xlabel("timestep n")
+	plt.ylabel("e eccentricity")
+	plt.title("Eccentricity of Earth-Sun")
+	plt.axis([0,nt,min(e[:-2]),max(e[:-2])])
+
+	print("Eccentricities of Earth-Sun")
+	print(e[0:20])
+
+	#==============================================================
+	#Sun velocity... måske lidt bedre end position, fordi, velocity får man fra rødforskydning etc når solen kommer tættere/nærmere
+	#Btw, vi har måske ikke hele period fra Jupiter med?!
+	plt.figure(7)
+	plt.plot(us[:-2,0],color="black")
+	plt.plot(vs[:-2,0],color="black")
+	plt.xlabel("timestep n")
+	plt.ylabel("v(t) m/s")
+	plt.title("Periodic data from Sun")
+
+
+	#DFT af sun data v[:-2,0]
+
+	#Jeg mangler vel lidt med dt = 3000000 etc? Der skal lidt mere info ind i denne fourer transform i think
+	
+	DFT()
+	
+	PlotOrbit()
+	
+	
+	
+	#===============================================================
+	#Animate
+	animUnits = animation.FuncAnimation(fig, animateUnits, frames=nt, interval=100)
+	
+	plt.show()
